@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>35岁程序员工资计算器</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .output {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>35岁程序员工资计算器</h1>
+    <form id="calculatorForm">
+      <label for="currentAge">当前年龄（岁）</label>
+      <input type="number" id="currentAge" required min="18" max="35" value="30">
+
+      <label for="currentSalary">现有工资（年薪，元）</label>
+      <input type="number" id="currentSalary" required min="0" value="240000">
+
+      <label for="growthRate">年增长率（%）</label>
+      <input type="number" id="growthRate" required min="0" value="5">
+
+      <label for="saveRate">存储比例（%）</label>
+      <input type="number" id="saveRate" required min="0" max="100" value="50">
+
+      <button type="button" onclick="calculateSavings()">计算</button>
+    </form>
+    <div class="output" id="output"></div>
+  </div>
+
+  <script>
+    function calculateSavings() {
+      // 获取输入值
+      const currentAge = parseInt(document.getElementById("currentAge").value);
+      const currentSalary = parseFloat(document.getElementById("currentSalary").value);
+      const growthRate = parseFloat(document.getElementById("growthRate").value) / 100;
+      const saveRate = parseFloat(document.getElementById("saveRate").value) / 100;
+
+      if (currentAge >= 35) {
+        alert("年龄已经超过35岁，不需要计算。");
+        return;
+      }
+
+      let totalSavings = 0; // 总存款
+      let yearlySalary = currentSalary; // 年薪
+      let age = currentAge;
+
+      let outputHtml = `<h2>计算结果</h2><ul>`;
+
+      while (age < 35) {
+        const yearlySavings = yearlySalary * saveRate; // 每年的存款
+        totalSavings += yearlySavings;
+        outputHtml += `<li>${age}岁: 年薪 ${yearlySalary.toFixed(2)}元, 存款 ${yearlySavings.toFixed(2)}元</li>`;
+        yearlySalary += yearlySalary * growthRate; // 更新年薪
+        age++;
+      }
+
+      outputHtml += `</ul><h3>总存款：${totalSavings.toFixed(2)}元</h3>`;
+      document.getElementById("output").innerHTML = outputHtml;
+    }
+  </script>
+</body>
+</html>
