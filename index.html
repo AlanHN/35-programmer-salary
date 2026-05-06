@@ -432,9 +432,9 @@
           <span class="hint">范围：18-35岁</span>
         </div>
         <div class="input-group">
-          <label for="currentSalary">现有年薪（元）</label>
-          <input type="number" id="currentSalary" min="0" value="300000">
-          <span class="hint">例如：300000 = 30万年薪</span>
+          <label for="currentSalary">现有年薪（万元）</label>
+          <input type="number" id="currentSalary" min="0" value="30" step="0.1">
+          <span class="hint">例如：30 = 30万年薪</span>
         </div>
         <div class="input-group">
           <label for="growthRate">年薪资增长率（%）</label>
@@ -493,23 +493,23 @@
       <div class="results-grid">
         <div class="stat-card">
           <div class="stat-value" id="totalSavings">0</div>
-          <div class="stat-label">35岁总存款（名义）</div>
+          <div class="stat-label">35岁总存款（万元）</div>
         </div>
         <div class="stat-card secondary">
           <div class="stat-value" id="realTotalSavings">0</div>
-          <div class="stat-label">35岁总存款（实际价值）</div>
+          <div class="stat-label">35岁总存款实际价值（万元）</div>
         </div>
         <div class="stat-card highlight">
           <div class="stat-value" id="investmentIncome">0</div>
-          <div class="stat-label">投资收益总额</div>
+          <div class="stat-label">投资收益总额（万元）</div>
         </div>
         <div class="stat-card">
           <div class="stat-value" id="avgSalary">0</div>
-          <div class="stat-label">平均年薪</div>
+          <div class="stat-label">平均年薪（万元）</div>
         </div>
         <div class="stat-card">
           <div class="stat-value" id="avgSavings">0</div>
-          <div class="stat-label">平均年存款</div>
+          <div class="stat-label">平均年存款（万元）</div>
         </div>
         <div class="stat-card">
           <div class="stat-value" id="workYears">0</div>
@@ -644,7 +644,11 @@
     }
 
     function formatNumber(num) {
-      return Math.round(num).toLocaleString('zh-CN');
+      return (Math.round(num) / 10000).toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+    }
+
+    function formatWan(num) {
+      return (num / 10000).toFixed(2);
     }
 
     function getChartColors(count) {
@@ -672,24 +676,24 @@
           labels: labels,
           datasets: [
             {
-              label: '年薪（元）',
-              data: data.map(d => d.salary),
+              label: '年薪（万元）',
+              data: data.map(d => d.salary / 10000),
               borderColor: '#667eea',
               backgroundColor: 'rgba(102, 126, 234, 0.1)',
               fill: true,
               tension: 0.4
             },
             {
-              label: '年存款（元）',
-              data: data.map(d => d.savings),
+              label: '年存款（万元）',
+              data: data.map(d => d.savings / 10000),
               borderColor: '#764ba2',
               backgroundColor: 'rgba(118, 75, 162, 0.1)',
               fill: true,
               tension: 0.4
             },
             {
-              label: '投资组合（元）',
-              data: data.map(d => d.investmentPortfolio),
+              label: '投资组合（万元）',
+              data: data.map(d => d.investmentPortfolio / 10000),
               borderColor: '#48bb78',
               backgroundColor: 'rgba(72, 187, 120, 0.1)',
               fill: true,
@@ -704,7 +708,7 @@
             tooltip: {
               callbacks: {
                 label: function(context) {
-                  return context.dataset.label + ': ' + formatNumber(context.raw) + ' 元';
+                  return context.dataset.label + ': ' + context.raw.toFixed(2) + ' 万';
                 }
               }
             }
@@ -714,7 +718,7 @@
               beginAtZero: true,
               ticks: {
                 callback: function(value) {
-                  return (value / 10000).toFixed(0) + '万';
+                  return value.toFixed(0) + '万';
                 }
               }
             }
@@ -729,7 +733,7 @@
         data: {
           labels: data.map(d => `${d.age}岁`),
           datasets: [{
-            data: data.map(d => d.savings),
+            data: data.map(d => d.savings / 10000),
             backgroundColor: getChartColors(data.length),
             borderWidth: 2,
             borderColor: '#fff'
@@ -744,7 +748,7 @@
                 label: function(context) {
                   const total = context.dataset.data.reduce((a, b) => a + b, 0);
                   const percentage = ((context.raw / total) * 100).toFixed(1);
-                  return context.label + ': ' + formatNumber(context.raw) + '元 (' + percentage + '%)';
+                  return context.label + ': ' + context.raw.toFixed(2) + '万 (' + percentage + '%)';
                 }
               }
             }
@@ -759,8 +763,8 @@
         data: {
           labels: allScenarios.map((s, i) => s.name),
           datasets: [{
-            label: '总存款（含投资）',
-            data: allScenarios.map(s => s.result.investmentPortfolio || s.result.totalSavings),
+            label: '总存款（万元）',
+            data: allScenarios.map(s => (s.result.investmentPortfolio || s.result.totalSavings) / 10000),
             backgroundColor: getChartColors(allScenarios.length),
             borderWidth: 0,
             borderRadius: 10
@@ -773,7 +777,7 @@
             tooltip: {
               callbacks: {
                 label: function(context) {
-                  return context.dataset.label + ': ' + formatNumber(context.raw) + ' 元';
+                  return context.dataset.label + ': ' + context.raw.toFixed(2) + ' 万';
                 }
               }
             }
@@ -783,7 +787,7 @@
               beginAtZero: true,
               ticks: {
                 callback: function(value) {
-                  return (value / 10000).toFixed(0) + '万';
+                  return value.toFixed(0) + '万';
                 }
               }
             }
@@ -799,16 +803,16 @@
           labels: data.map(d => `${d.age}岁`),
           datasets: [
             {
-              label: '累计存款',
-              data: data.map(d => d.totalSavings),
+              label: '累计存款（万元）',
+              data: data.map(d => d.totalSavings / 10000),
               borderColor: '#667eea',
               backgroundColor: 'rgba(102, 126, 234, 0.5)',
               fill: true,
               tension: 0.4
             },
             {
-              label: '投资收益',
-              data: data.map(d => d.investmentIncome),
+              label: '投资收益（万元）',
+              data: data.map(d => d.investmentIncome / 10000),
               borderColor: '#48bb78',
               backgroundColor: 'rgba(72, 187, 120, 0.5)',
               fill: true,
@@ -823,7 +827,7 @@
             tooltip: {
               callbacks: {
                 label: function(context) {
-                  return context.dataset.label + ': ' + formatNumber(context.raw) + ' 元';
+                  return context.dataset.label + ': ' + context.raw.toFixed(2) + ' 万';
                 }
               }
             }
@@ -834,7 +838,7 @@
               stacked: true,
               ticks: {
                 callback: function(value) {
-                  return (value / 10000).toFixed(0) + '万';
+                  return value.toFixed(0) + '万';
                 }
               }
             }
@@ -849,11 +853,11 @@
           <thead>
             <tr>
               <th>年龄</th>
-              <th>年薪（元）</th>
-              <th>年存款（元）</th>
-              <th>累计存款（元）</th>
-              <th>投资组合（元）</th>
-              <th>投资收益（元）</th>
+              <th>年薪（万元）</th>
+              <th>年存款（万元）</th>
+              <th>累计存款（万元）</th>
+              <th>投资组合（万元）</th>
+              <th>投资收益（万元）</th>
             </tr>
           </thead>
           <tbody>
@@ -912,7 +916,8 @@
 
     function calculateAndShow() {
       const age = parseInt(document.getElementById('currentAge').value);
-      const salary = parseFloat(document.getElementById('currentSalary').value);
+      const salaryWan = parseFloat(document.getElementById('currentSalary').value);
+      const salary = salaryWan * 10000;
       const growthRate = parseFloat(document.getElementById('growthRate').value);
       const saveRate = parseFloat(document.getElementById('saveRate').value);
       const investmentRate = parseFloat(document.getElementById('investmentRate').value);
@@ -941,16 +946,16 @@
       const scenarioName = `场景1（当前）`;
       scenarios = [{
         name: scenarioName,
-        params: { age, salary, growthRate, saveRate, investmentRate, inflationRate },
+        params: { age, salary: salaryWan, growthRate, saveRate, investmentRate, inflationRate },
         result: result
       }];
 
       document.getElementById('resultsCard').style.display = 'block';
-      document.getElementById('totalSavings').textContent = formatNumber(result.totalSavings);
-      document.getElementById('realTotalSavings').textContent = formatNumber(result.realTotalSavings);
-      document.getElementById('investmentIncome').textContent = formatNumber(result.investmentIncome);
-      document.getElementById('avgSalary').textContent = formatNumber(result.avgSalary);
-      document.getElementById('avgSavings').textContent = formatNumber(result.avgSavings);
+      document.getElementById('totalSavings').textContent = formatWan(result.totalSavings);
+      document.getElementById('realTotalSavings').textContent = formatWan(result.realTotalSavings);
+      document.getElementById('investmentIncome').textContent = formatWan(result.investmentIncome);
+      document.getElementById('avgSalary').textContent = formatWan(result.avgSalary);
+      document.getElementById('avgSavings').textContent = formatWan(result.avgSavings);
       document.getElementById('workYears').textContent = result.workYears;
 
       renderScenarioTabs();
@@ -960,7 +965,8 @@
 
     function addScenario() {
       const age = parseInt(document.getElementById('currentAge').value);
-      const salary = parseFloat(document.getElementById('currentSalary').value);
+      const salaryWan = parseFloat(document.getElementById('currentSalary').value);
+      const salary = salaryWan * 10000;
       const growthRate = parseFloat(document.getElementById('growthRate').value);
       const saveRate = parseFloat(document.getElementById('saveRate').value);
       const investmentRate = parseFloat(document.getElementById('investmentRate').value);
@@ -977,7 +983,7 @@
 
       scenarios.push({
         name: `场景${scenarioNum}（增长率${newGrowth}%，存款${newSave}%）`,
-        params: { age, salary, growthRate: newGrowth, saveRate: newSave, investmentRate, inflationRate },
+        params: { age, salary: salaryWan, growthRate: newGrowth, saveRate: newSave, investmentRate, inflationRate },
         result: result
       });
 
@@ -994,11 +1000,11 @@
       let csvContent = '\uFEFF';
       scenarios.forEach((s, i) => {
         csvContent += `${s.name}\n`;
-        csvContent += '年龄,年薪（元）,年存款（元）,累计存款（元）,投资组合（元）,投资收益（元）\n';
+        csvContent += '年龄,年薪（万元）,年存款（万元）,累计存款（万元）,投资组合（万元）,投资收益（万元）\n';
         s.result.data.forEach(d => {
-          csvContent += `${d.age},${Math.round(d.salary)},${Math.round(d.savings)},${Math.round(d.totalSavings)},${Math.round(d.investmentPortfolio)},${Math.round(d.investmentIncome)}\n`;
+          csvContent += `${d.age},${(d.salary/10000).toFixed(2)},${(d.savings/10000).toFixed(2)},${(d.totalSavings/10000).toFixed(2)},${(d.investmentPortfolio/10000).toFixed(2)},${(d.investmentIncome/10000).toFixed(2)}\n`;
         });
-        csvContent += `\n总存款,${Math.round(s.result.totalSavings)},,总投资收益,${Math.round(s.result.investmentIncome)},实际价值,${Math.round(s.result.realTotalSavings)}\n\n`;
+        csvContent += `\n总存款,${(s.result.totalSavings/10000).toFixed(2)},,总投资收益,${(s.result.investmentIncome/10000).toFixed(2)},实际价值,${(s.result.realTotalSavings/10000).toFixed(2)}\n\n`;
       });
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -1044,8 +1050,8 @@
       historyList.innerHTML = history.map(item => `
         <div class="history-item">
           <div class="history-info">
-            <strong>${item.date}</strong> - 年龄:${item.params.age}岁 年薪:${formatNumber(item.params.salary)}元 增长率:${item.params.growthRate}% 
-            → 总存款: <strong>${formatNumber(item.totalSavings)}元</strong>
+            <strong>${item.date}</strong> - 年龄:${item.params.age}岁 年薪:${item.params.salary}万 增长率:${item.params.growthRate}% 
+            → 总存款: <strong>${formatWan(item.totalSavings)}万</strong>
           </div>
           <div class="history-actions">
             <button class="history-btn load" onclick="loadFromHistory(${item.id})">加载</button>
@@ -1084,7 +1090,7 @@
 
     function resetForm() {
       document.getElementById('currentAge').value = 28;
-      document.getElementById('currentSalary').value = 300000;
+      document.getElementById('currentSalary').value = 30;
       document.getElementById('growthRate').value = 10;
       document.getElementById('saveRate').value = 40;
       document.getElementById('investmentRate').value = 6;
